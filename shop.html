@@ -1,33 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bloom Boutique - Shop Flowers</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop | Flower Boutique</title>
+  <meta name="description" content="Browse our handcrafted fresh floral arrangements." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #faf8f5; --fg: #2a3d2e; --primary: #e8c4cc; --primary-dark: #c9919e;
+      --primary-fg: #1e3022; --muted-fg: #7a9080; --card: #ffffff;
+      --border: #f0dde2; --sage: #e8ede9; --font-body: 'Jost', sans-serif;
+      --font-display: 'Playfair Display', serif; --radius: 1rem;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--fg); min-height: 100vh; display: flex; flex-direction: column; }
+    a { color: inherit; text-decoration: none; }
+
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(250,248,245,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 2rem; height: 72px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-display); font-size: 1.4rem; color: var(--fg); }
+    .nav-links { display: flex; align-items: center; gap: 2.5rem; }
+    .nav-links a { font-size: 0.78rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted-fg); transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--primary-dark); }
+    .cart-btn { position: relative; background: none; border: none; cursor: pointer; font-size: 1.4rem; color: var(--fg); padding: 0.25rem; transition: color 0.2s; }
+    .cart-btn:hover { color: var(--primary-dark); }
+    .cart-badge { position: absolute; top: -4px; right: -6px; background: var(--primary-dark); color: white; font-size: 0.65rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-body); }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+
+    .page-header { padding: 4rem 0 2rem; text-align: center; }
+    .page-header h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 0.75rem; }
+    .page-header p { color: var(--muted-fg); max-width: 520px; margin: 0 auto; line-height: 1.7; }
+
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 2rem; }
+
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 3rem 2rem; padding: 3rem 0 6rem; }
+
+    .product-card { display: flex; flex-direction: column; }
+    .product-card-img { position: relative; overflow: hidden; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(0,0,0,0.06); margin-bottom: 1.25rem; }
+    .product-card-img img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; transition: transform 0.7s ease; }
+    .product-card:hover .product-card-img img { transform: scale(1.05); }
+    .quick-add {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 1rem;
+      opacity: 0; transform: translateY(12px); transition: all 0.3s ease;
+    }
+    .product-card:hover .quick-add { opacity: 1; transform: translateY(0); }
+    .quick-add-btn {
+      width: 100%; padding: 0.65rem; border-radius: 0.75rem; background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(4px); border: 1px solid var(--border); color: var(--fg);
+      font-family: var(--font-body); font-weight: 500; font-size: 0.9rem;
+      cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .quick-add-btn:hover { background: white; }
+
+    .product-card-info { flex: 1; display: flex; flex-direction: column; text-align: center; padding: 0 0.5rem; }
+    .product-card-info h3 { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 0.4rem; }
+    .product-desc { color: var(--muted-fg); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1rem; flex: 1; }
+    .product-price-row { display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+    .product-price { font-size: 1.15rem; font-weight: 500; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.8rem 2rem; border-radius: 50px; font-family: var(--font-body); font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: var(--primary-dark); color: white; }
+    .btn-primary:hover { background: #b87a87; }
+    .btn-full { width: 100%; }
+
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem; background: var(--fg); color: white;
+      padding: 1rem 1.5rem; border-radius: 0.75rem; font-size: 0.9rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000;
+      transform: translateY(100px); opacity: 0; transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    footer { background: var(--card); border-top: 1px solid var(--border); padding: 4rem 0 2rem; margin-top: auto; }
+    .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 3rem; margin-bottom: 3rem; }
+    .footer-col h3 { font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 1.25rem; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 0.75rem; }
+    .footer-col ul li a { color: var(--muted-fg); transition: color 0.2s; }
+    .footer-col ul li a:hover { color: var(--primary-dark); }
+    .footer-col p { color: var(--muted-fg); line-height: 1.7; }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 1.5rem; text-align: center; color: var(--muted-fg); font-size: 0.85rem; }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>🌸 Bloom Boutique</h1>
-    <nav>
-      <a href="index.html">Home</a> |
-      <a href="shop.html">Shop</a> |
-      <a href="about.html">About</a> |
-      <a href="contact.html">Contact</a>
-    </nav>
-  </header>
 
-  <main>
-    <h2>Shop Our Flowers</h2>
-    <ul>
-      <li><strong>Red Roses</strong> – $25 <button>Add to Cart</button></li>
-      <li><strong>Sunflowers</strong> – $20 <button>Add to Cart</button></li>
-      <li><strong>Tulip Bouquet</strong> – $22 <button>Add to Cart</button></li>
-      <li><strong>Orchid Basket</strong> – $35 <button>Add to Cart</button></li>
-    </ul>
-  </main>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">🌿 Flower Boutique</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="shop.html" class="active">Shop</a>
+    </div>
+    <div class="nav-right">
+      <a href="cart.html">
+        <button class="cart-btn" title="Cart">🛍<span class="cart-badge" id="cart-count">0</span></button>
+      </a>
+    </div>
+  </div>
+</nav>
 
-  <footer>
-    <p>© 2024 Bloom Boutique</p>
-  </footer>
+<main>
+  <div class="page-header">
+    <div class="container">
+      <h1>Our Collection</h1>
+      <p>Explore our handcrafted selection of fresh, seasonal blooms. Each arrangement is carefully designed by our expert florists.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="product-grid" id="product-grid"></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="logo" style="margin-bottom:1rem; justify-content:flex-start;">🌿 Flower Boutique</div>
+        <p>Crafting unforgettable floral moments. Fresh, elegant blooms right to your door.</p>
+      </div>
+      <div class="footer-col">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="shop.html">Shop Collection</a></li>
+          <li><a href="cart.html">Your Cart</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3>Contact Us</h3>
+        <ul>
+          <li><a>123 Floral Avenue, NY 10001</a></li>
+          <li><a>hello@flowerboutique.com</a></li>
+          <li><a>+1 (555) 123-4567</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; <span id="year"></span> Flower Boutique. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const PRODUCTS = [
+    { id: 1, name: "Red Rose Bouquet", price: 49.99, description: "A classic arrangement of 12 premium long-stemmed red roses, accented with fresh eucalyptus.", imageUrl: "https://images.unsplash.com/photo-1562690868-60bbe7293e94?w=800&q=80" },
+    { id: 2, name: "Spring Tulip Mix", price: 39.99, description: "Vibrant mix of seasonal tulips in soft pinks, yellows, and whites.", imageUrl: "https://images.unsplash.com/photo-1520763185298-1b434c919102?w=800&q=80" },
+    { id: 3, name: "Sunflower Bunch", price: 34.99, description: "A bright bundle of golden sunflowers to instantly lift spirits and warm any room.", imageUrl: "https://images.unsplash.com/photo-1561542152-19e0d16c52a0?w=800&q=80" },
+    { id: 4, name: "Lavender Dreams", price: 44.99, description: "Calming and fragrant bouquet featuring fresh lavender, white lisianthus, and purple fillers.", imageUrl: "https://images.unsplash.com/photo-1558231518-e32ee2a4c10a?w=800&q=80" },
+    { id: 5, name: "Lily Elegance", price: 54.99, description: "A sophisticated arrangement of pristine white lilies, symbolizing purity and beauty.", imageUrl: "https://images.unsplash.com/photo-1508610048659-a06b669e3321?w=800&q=80" },
+    { id: 6, name: "Garden Mix", price: 59.99, description: "A luxurious hand-tied mix featuring ranunculus, garden roses, and delicate astilbe.", imageUrl: "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=800&q=80" },
+  ];
+
+  function getCart() { try { return JSON.parse(localStorage.getItem('flower-cart') || '[]'); } catch { return []; } }
+  function saveCart(cart) { localStorage.setItem('flower-cart', JSON.stringify(cart)); }
+  function updateBadge() {
+    const count = getCart().reduce((s, i) => s + i.quantity, 0);
+    const el = document.getElementById('cart-count');
+    el.textContent = count;
+    el.style.display = count > 0 ? 'flex' : 'none';
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function addToCart(product) {
+    const cart = getCart();
+    const idx = cart.findIndex(i => i.id === product.id);
+    if (idx > -1) cart[idx].quantity++;
+    else cart.push({ ...product, quantity: 1 });
+    saveCart(cart);
+    updateBadge();
+    showToast(`✿ ${product.name} added to your cart!`);
+  }
+
+  const grid = document.getElementById('product-grid');
+  PRODUCTS.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML = `
+      <div class="product-card-img">
+        <img src="${p.imageUrl}" alt="${p.name}" loading="lazy" />
+        <div class="quick-add">
+          <button class="quick-add-btn" onclick="addToCart(PRODUCTS.find(x=>x.id===${p.id}))">🛍 Quick Add</button>
+        </div>
+      </div>
+      <div class="product-card-info">
+        <h3>${p.name}</h3>
+        <p class="product-desc">${p.description}</p>
+        <div class="product-price-row"><span class="product-price">$${p.price.toFixed(2)}</span></div>
+        <button class="btn btn-primary btn-full" onclick="addToCart(PRODUCTS.find(x=>x.id===${p.id}))">Add to Cart</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  updateBadge();
+</script>
 </body>
 </html>
