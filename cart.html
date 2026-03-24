@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Cart | Flower Boutique</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #faf8f5; --fg: #2a3d2e; --primary: #e8c4cc; --primary-dark: #c9919e;
+      --primary-fg: #1e3022; --muted-fg: #7a9080; --card: #ffffff;
+      --border: #f0dde2; --sage: #e8ede9; --font-body: 'Jost', sans-serif;
+      --font-display: 'Playfair Display', serif; --radius: 1rem;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--fg); min-height: 100vh; display: flex; flex-direction: column; }
+    a { color: inherit; text-decoration: none; }
+
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(250,248,245,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 2rem; height: 72px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-display); font-size: 1.4rem; color: var(--fg); }
+    .nav-links { display: flex; align-items: center; gap: 2.5rem; }
+    .nav-links a { font-size: 0.78rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted-fg); transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--primary-dark); }
+    .cart-btn { position: relative; background: none; border: none; cursor: pointer; font-size: 1.4rem; color: var(--fg); padding: 0.25rem; }
+    .cart-badge { position: absolute; top: -4px; right: -6px; background: var(--primary-dark); color: white; font-size: 0.65rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+
+    main { flex: 1; padding: 3rem 0 6rem; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 2rem; }
+    h1 { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 2.5rem; }
+
+    .cart-layout { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+    @media(min-width: 900px) { .cart-layout { grid-template-columns: 1fr 380px; } }
+
+    /* EMPTY STATE */
+    .empty-cart { text-align: center; padding: 6rem 1rem; }
+    .empty-icon { font-size: 4rem; margin-bottom: 1.5rem; }
+    .empty-cart h2 { font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 0.75rem; }
+    .empty-cart p { color: var(--muted-fg); margin-bottom: 2rem; }
+
+    /* CART ITEMS */
+    .cart-items { display: flex; flex-direction: column; gap: 1.25rem; }
+    .cart-item {
+      display: flex; align-items: center; gap: 1.5rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .item-img { width: 90px; height: 90px; flex-shrink: 0; border-radius: 0.75rem; overflow: hidden; }
+    .item-img img { width: 100%; height: 100%; object-fit: cover; }
+    .item-info { flex: 1; }
+    .item-info h3 { font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 0.3rem; }
+    .item-price { color: var(--primary-dark); font-weight: 500; }
+    .qty-controls { display: flex; align-items: center; gap: 0.25rem; margin-top: 0.75rem; border: 1px solid var(--border); border-radius: 50px; width: fit-content; padding: 0.2rem; background: var(--bg); }
+    .qty-btn { background: none; border: none; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s; color: var(--fg); }
+    .qty-btn:hover { background: var(--sage); }
+    .qty-val { min-width: 36px; text-align: center; font-weight: 500; font-size: 0.95rem; }
+    .item-subtotal { font-family: var(--font-display); font-size: 1.1rem; white-space: nowrap; }
+    .remove-btn { background: none; border: none; cursor: pointer; color: var(--muted-fg); font-size: 1.1rem; padding: 0.4rem; transition: color 0.2s; margin-left: auto; }
+    .remove-btn:hover { color: #c0392b; }
+
+    /* ORDER SUMMARY */
+    .order-summary {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05); position: sticky; top: 90px; align-self: start;
+    }
+    .order-summary h2 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 1.5rem; }
+    .summary-row { display: flex; justify-content: space-between; padding: 0.6rem 0; color: var(--muted-fg); }
+    .summary-total { display: flex; justify-content: space-between; font-family: var(--font-display); font-size: 1.4rem; padding-top: 1rem; margin-top: 0.5rem; border-top: 1px solid var(--border); }
+    .summary-divider { border: none; border-top: 1px solid var(--border); margin: 0.5rem 0; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.85rem 2rem; border-radius: 50px; font-family: var(--font-body); font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: var(--primary-dark); color: white; }
+    .btn-primary:hover { background: #b87a87; }
+    .btn-outline { background: transparent; color: var(--fg); border: 1.5px solid var(--border); }
+    .btn-outline:hover { background: var(--sage); }
+    .btn-full { width: 100%; border-radius: 0.75rem; padding: 1rem; font-size: 1.05rem; margin-top: 1.5rem; }
+    .continue-link { display: block; text-align: center; margin-top: 1rem; font-size: 0.9rem; color: var(--primary-dark); }
+    .continue-link:hover { text-decoration: underline; }
+
+    footer { background: var(--card); border-top: 1px solid var(--border); padding: 4rem 0 2rem; margin-top: auto; }
+    .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 3rem; margin-bottom: 3rem; }
+    .footer-col h3 { font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 1.25rem; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 0.75rem; }
+    .footer-col ul li a { color: var(--muted-fg); transition: color 0.2s; }
+    .footer-col ul li a:hover { color: var(--primary-dark); }
+    .footer-col p { color: var(--muted-fg); line-height: 1.7; }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 1.5rem; text-align: center; color: var(--muted-fg); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">🌿 Flower Boutique</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="shop.html">Shop</a>
+    </div>
+    <div class="nav-right">
+      <a href="cart.html">
+        <button class="cart-btn" title="Cart">🛍<span class="cart-badge" id="cart-count">0</span></button>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="container">
+    <div id="empty-cart" class="empty-cart" style="display:none;">
+      <div class="empty-icon">🛍</div>
+      <h2>Your cart is empty</h2>
+      <p>Discover our fresh seasonal collections.</p>
+      <a href="shop.html" class="btn btn-primary">Start Shopping</a>
+    </div>
+
+    <div id="cart-content" style="display:none;">
+      <h1>Your Shopping Cart</h1>
+      <div class="cart-layout">
+        <div class="cart-items" id="cart-items-list"></div>
+        <aside class="order-summary">
+          <h2>Order Summary</h2>
+          <div class="summary-row"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
+          <div class="summary-row"><span>Shipping</span><span>Calculated at checkout</span></div>
+          <hr class="summary-divider" />
+          <div class="summary-total"><span>Total</span><span id="total">$0.00</span></div>
+          <a href="checkout.html" class="btn btn-primary btn-full">Proceed to Checkout</a>
+          <a href="shop.html" class="continue-link">Continue Shopping</a>
+        </aside>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="logo" style="margin-bottom:1rem; justify-content:flex-start;">🌿 Flower Boutique</div>
+        <p>Crafting unforgettable floral moments. Fresh, elegant blooms right to your door.</p>
+      </div>
+      <div class="footer-col">
+        <h3>Quick Links</h3>
+        <ul><li><a href="index.html">Home</a></li><li><a href="shop.html">Shop Collection</a></li><li><a href="cart.html">Your Cart</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h3>Contact Us</h3>
+        <ul><li><a>123 Floral Avenue, NY 10001</a></li><li><a>hello@flowerboutique.com</a></li><li><a>+1 (555) 123-4567</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; <span id="year"></span> Flower Boutique. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  function getCart() { try { return JSON.parse(localStorage.getItem('flower-cart') || '[]'); } catch { return []; } }
+  function saveCart(cart) { localStorage.setItem('flower-cart', JSON.stringify(cart)); renderCart(); }
+
+  function fmt(n) { return '$' + n.toFixed(2); }
+
+  function updateQty(id, delta) {
+    const cart = getCart();
+    const idx = cart.findIndex(i => i.id === id);
+    if (idx < 0) return;
+    cart[idx].quantity += delta;
+    if (cart[idx].quantity < 1) cart.splice(idx, 1);
+    saveCart(cart);
+  }
+
+  function removeItem(id) {
+    const cart = getCart().filter(i => i.id !== id);
+    saveCart(cart);
+  }
+
+  function renderCart() {
+    const cart = getCart();
+    const badge = document.getElementById('cart-count');
+    const count = cart.reduce((s, i) => s + i.quantity, 0);
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
+
+    if (cart.length === 0) {
+      document.getElementById('empty-cart').style.display = 'block';
+      document.getElementById('cart-content').style.display = 'none';
+      return;
+    }
+    document.getElementById('empty-cart').style.display = 'none';
+    document.getElementById('cart-content').style.display = 'block';
+
+    const list = document.getElementById('cart-items-list');
+    list.innerHTML = '';
+    let total = 0;
+    cart.forEach(item => {
+      total += item.price * item.quantity;
+      list.innerHTML += `
+        <div class="cart-item">
+          <div class="item-img"><img src="${item.imageUrl}" alt="${item.name}" /></div>
+          <div class="item-info">
+            <h3>${item.name}</h3>
+            <div class="item-price">${fmt(item.price)}</div>
+            <div class="qty-controls">
+              <button class="qty-btn" onclick="updateQty(${item.id}, -1)">−</button>
+              <span class="qty-val">${item.quantity}</span>
+              <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+            </div>
+          </div>
+          <div class="item-subtotal">${fmt(item.price * item.quantity)}</div>
+          <button class="remove-btn" onclick="removeItem(${item.id})" title="Remove">✕</button>
+        </div>`;
+    });
+    document.getElementById('subtotal').textContent = fmt(total);
+    document.getElementById('total').textContent = fmt(total);
+  }
+
+  renderCart();
+</script>
+</body>
+</html>
